@@ -1,7 +1,3 @@
-//
-// Created by Correa, Rafael on 30/05/21.
-//
-
 #ifndef MANDELBROT_FRACTAL_X11_CONFIG_H
 #define MANDELBROT_FRACTAL_X11_CONFIG_H
 
