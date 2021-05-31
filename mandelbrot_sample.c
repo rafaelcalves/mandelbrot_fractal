@@ -3,7 +3,7 @@
  *
  * Compile with:
  *
- * gcc -std=c99 mandelbrot.c -o mandelbrot $(pkg-config --cflags --libs glib-2.0 gtk+-2.0)
+ * gcc -std=c99 mandelbrot_sample.c -o mandelbrot_sample $(pkg-config --cflags --libs glib-2.0 gtk+-2.0)
  *
  */
 
@@ -14,7 +14,7 @@
 
 int main(int argc, char *argv[])
 {
-    int width = 1920, height = 1080, max = 1000;
+    int width = 800, height = 800, max = 1024;
     const int black = 0x000000, white = 0xffffff;
 
     GError *error = NULL;
@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
         pixels += rowstride;
     }
 
-    if (!gdk_pixbuf_save(image, "mandelbrot.png", "png", &error, NULL)) {
+    if (!gdk_pixbuf_save(image, "mandelbrot_sample.png", "png", &error, NULL)) {
         fprintf (stderr, "Unable to write file: %s\n", error->message);
     }
 
