@@ -1,11 +1,17 @@
 #ifndef MANDELBROT_FRACTAL_X11_CONFIG_H
 #define MANDELBROT_FRACTAL_X11_CONFIG_H
 
+static const int HEIGHT = 800;
+static const int WIDTH = 800;
+
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
+#include <cstdlib>
 
 #include "dot.h"
+#include "coordinates.h"
+#include "color_pallete.h"
 
 class X11Config {
 public:
@@ -15,6 +21,7 @@ public:
     GC gc;
     unsigned long black, white, red, blue;
     Dot* dot;
+    XImage *xImage;
 
     X11Config(){
         init();
@@ -28,10 +35,9 @@ public:
     }
     void draw() {
         XClearWindow(display, window);
+        plotRandomly();
     }
-    unsigned long RGB(int r, int g, int b) {
-        return b + (g<<8) + (r<<16);
-    }
+
     void drawLine(const XEvent &event, char *text) {
         int x=event.xbutton.x, y=event.xbutton.y;
         XSetForeground(display,gc,red);
@@ -63,23 +69,75 @@ public:
         }
     }
 
+    void plotImage(Coordinates *coordinate) {
+        XPutImage(
+            display,
+            window,
+            gc,
+            xImage,
+            coordinate->xImaginary,
+            coordinate->yImaginary,
+            coordinate->xImaginary,
+            coordinate->yImaginary,
+            (coordinate->xReal - coordinate->xImaginary + 1),
+            (coordinate->yReal - coordinate->yImaginary + 1)
+        );
+    }
+
+    void plotRandomly(){
+        ColorPallete colors;
+        for (int i = 0; i < HEIGHT * WIDTH; ++i) {
+            Coordinates* coordinates = new Coordinates();
+            unsigned int x = std::rand() / ((RAND_MAX + 1u) / WIDTH - 2);
+            coordinates->xImaginary= x;
+            coordinates->xReal= x;
+            unsigned int y = std::rand() / ((RAND_MAX + 1u) / (HEIGHT -2));
+            coordinates->yImaginary= y;
+            coordinates->yReal= y;
+            int pixelIndex = x + (y * HEIGHT);
+            int color_index = std::rand() / ((RAND_MAX + 1u) / (colors.palette.size() - 1));
+            ((unsigned *) xImage->data)[pixelIndex] = colors.palette[color_index];
+            plotImage(coordinates);
+        }
+    }
+
 private:
     void init() {
         dot=new Dot(100,100);
         display=XOpenDisplay((char *)0);
-        screen=DefaultScreen(display);
-        black=BlackPixel(display, screen);
-        white=WhitePixel(display, screen);
-        red=RGB(255,0,0);
-        blue=RGB(0,0,255);
-        window=XCreateSimpleWindow(display, DefaultRootWindow(display), 0, 0, 300, 300, 5, white, black);
-        XSetStandardProperties(display, window, "Howdy", "Hi", None, NULL, 0, NULL);
+        window=XCreateSimpleWindow(display, DefaultRootWindow(display), 0, 0, WIDTH, HEIGHT, 5, white, black);
+        XSetStandardProperties(display, window, "Mandelbrot Fractal", "", None, NULL, 0, NULL);
         XSelectInput(display, window, ExposureMask | ButtonPressMask | KeyPressMask);
         gc=XCreateGC(display, window, 0,0);
         XSetBackground(display,gc,white);
         XSetForeground(display,gc,black);
         XClearWindow(display, window);
         XMapRaised(display, window);
+        createImage();
+    }
+
+    void createImage() {
+        int depth = DefaultDepth(display, DefaultScreen(display));
+        Visual* visual = DefaultVisual(display, DefaultScreen(display));
+
+        char *imageAllocation = static_cast<char *>(malloc(getImageTotalSize(depth)));
+        xImage = XCreateImage(display, visual, depth, ZPixmap, 0, imageAllocation, WIDTH, HEIGHT, 32, 0);
+    }
+    
+    int getImageTotalSize(int depth) {
+        int bytesNeededForImage = 1;
+        int buffer, total;
+        bytesNeededForImage = 1;
+        buffer = (depth - 1) >> 2;
+        while (buffer >>= 1) {
+            bytesNeededForImage <<= 1;
+        }
+
+        total = HEIGHT * bytesNeededForImage;
+        total = (total + 3) & ~3;
+        total *= WIDTH;
+
+        return total;
     }
 };
 
