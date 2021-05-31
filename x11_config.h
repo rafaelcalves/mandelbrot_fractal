@@ -43,25 +43,23 @@ public:
     }
 
     void handleEvents() {
-        for(;;) {
-            XEvent event;
-            KeySym key;
-            char buffer[128];
+        XEvent event;
+        KeySym key;
+        char buffer[128];
 
-            XNextEvent(display, &event);
+        XNextEvent(display, &event);
 
-            if(event.type==Expose && event.xexpose.count==0) {
-                draw();
+        if(event.type==Expose && event.xexpose.count==0) {
+            draw();
+        }
+        if(event.type==KeyPress && XLookupString(&event.xkey, buffer, 255, &key,0)==1) {
+            if(key == XK_Escape || buffer[0]=='q') {
+                close();
             }
-            if(event.type==KeyPress && XLookupString(&event.xkey, buffer, 255, &key,0)==1) {
-                if(key == XK_Escape || buffer[0]=='q') {
-                    close();
-                }
-                printf("You pressed the %c key!\n",buffer[0]);
-            }
-            if(event.type==ButtonPress) {
-                drawLine(event, buffer);
-            }
+            printf("You pressed the %c key!\n",buffer[0]);
+        }
+        if(event.type==ButtonPress) {
+            drawLine(event, buffer);
         }
     }
 
