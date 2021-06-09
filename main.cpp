@@ -3,11 +3,14 @@
 
 #include "x11_config.h"
 
+static const int HEIGHT = 800;
+static const int WIDTH = 800;
+
 int main() {
-    X11Config x11;
+    auto *x11 = new X11Config(HEIGHT, WIDTH);
     while (1)
     {
-        x11.handleEvents();
+        x11->handleEvents();
     }
 }
 

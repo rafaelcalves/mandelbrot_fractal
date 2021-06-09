@@ -9,5 +9,5 @@ message(STATUS "X11_INCLUDE_DIR = ${X11_INCLUDE_DIR}")
 message(STATUS "X11_LIBRARIES = ${X11_LIBRARIES}")
 include_directories(${X11_INCLUDE_DIR})
 
-add_executable(mandelbrot_fractal main.cpp)
+add_executable(mandelbrot_fractal main.cpp mandelbrot.h)
 target_link_libraries(mandelbrot_fractal ${X11_LIBRARIES})
