@@ -1,6 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-
 #include "x11_config.h"
 
 static const int HEIGHT = 800;

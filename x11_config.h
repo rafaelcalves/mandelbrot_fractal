@@ -6,8 +6,6 @@
 #include <X11/Xos.h>
 #include <cstdlib>
 
-#include "dot.h"
-#include "coordinates.h"
 #include "mandelbrot.h"
 
 class X11Config {
