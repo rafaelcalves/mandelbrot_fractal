@@ -7,31 +7,23 @@
 #include <cstdlib>
 
 #include "mandelbrot.h"
+#include "chunk.h"
 
 class X11Config {
 public:
+    const int HEIGHT = 800;
+    const int WIDTH = 800;
+    const int CHUNK_SIZE = 100;
+
     Display *display;
-    int height, width;
     Window window;
     GC gc;
     int screen;
     unsigned long black, white;
+    std::vector<Chunk*> chunks;
 
-    X11Config(int height, int width){
-        this->height = height;
-        this->width = width;
+    X11Config(){
         init();
-    }
-
-    void close() const {
-        XFreeGC(display, gc);
-        XDestroyWindow(display, window);
-        XCloseDisplay(display);
-        exit(0);
-    }
-    void draw() {
-        XClearWindow(display, window);
-        drawMandelbrot();
     }
 
     void handleEvents() {
@@ -52,36 +44,64 @@ public:
         }
     }
 
-    void drawMandelbrot(){
-        auto *mandelbrot = new Mandelbrot(height,width);
-
-        for (int row = 0; row < this->height; row++) {
-            for (int col = 0; col < this->width; col++) {
-                unsigned long pixel_color = mandelbrot->calculate(col, row);
-                drawPixel(row,col,pixel_color);
-            }
-        }
-    }
-
 private:
-    void drawPixel(int x, int y, unsigned long color) const
-    {
-        XSetForeground(display, gc, color);
-        XDrawPoint(display, window, gc, x, y);
-    }
-
     void init() {
         display=XOpenDisplay((char *)0);
         screen= DefaultScreen(display);
         white = WhitePixel(display, screen);
         black = BlackPixel(display,screen);
-        window=XCreateSimpleWindow(display, DefaultRootWindow(display), 0, 0, width, height, 5, white, black);
+        window=XCreateSimpleWindow(display, DefaultRootWindow(display), 0, 0, WIDTH, HEIGHT, 5, white, black);
         XSetStandardProperties(display, window, "Mandelbrot Fractal", "", None, NULL, 0, NULL);
         XSelectInput(display, window, ExposureMask | ButtonPressMask | KeyPressMask);
         gc=XCreateGC(display, window, 0,0);
         XSetBackground(display,gc,white);
         XClearWindow(display, window);
         XMapRaised(display, window);
+
+        createChunks();
+    }
+
+    void createChunks(){
+        for(int j = 0; j < WIDTH; j+=CHUNK_SIZE) {
+            for(int i = 0; i < HEIGHT; i+=CHUNK_SIZE) {
+                auto* chunk = new Chunk();
+                chunk->initial = new Dot(j,i) ;
+                chunk->final = new Dot(j + CHUNK_SIZE - 1, i + CHUNK_SIZE - 1);
+
+                chunks.push_back(chunk);
+            }
+        }
+    }
+
+    void draw() {
+        XClearWindow(display, window);
+        drawMandelbrotByChunks();
+    }
+
+    void drawMandelbrotByChunks(){
+        auto *mandelbrot = new Mandelbrot(HEIGHT,WIDTH);
+
+        for(Chunk* chunk: chunks){
+            for(int i = chunk->initial->x; i <= chunk->final->x; i++){
+                for (int j = chunk->initial->y; j <= chunk->final->y; ++j) {
+                    unsigned long pixel_color = mandelbrot->calculate(i, j);
+                    drawPixel(i, j, pixel_color);
+                }
+            }
+        }
+    }
+
+    void drawPixel(int x, int y, unsigned long color) const
+    {
+        XSetForeground(display, gc, color);
+        XDrawPoint(display, window, gc, x, y);
+    }
+
+    void close() const {
+        XFreeGC(display, gc);
+        XDestroyWindow(display, window);
+        XCloseDisplay(display);
+        exit(0);
     }
 };
 

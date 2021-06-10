@@ -1,7 +1,3 @@
-//
-// Created by Correa, Rafael on 31/05/21.
-//
-
 #ifndef MANDELBROT_FRACTAL_MANDELBROT_H
 #define MANDELBROT_FRACTAL_MANDELBROT_H
 
