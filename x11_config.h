@@ -5,9 +5,13 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 #include <cstdlib>
+#include <vector>
 
-#include "mandelbrot.h"
 #include "chunk.h"
+#include "multi_thread_mandelbrot_handler.h"
+#include "mandelbrot.h"
+
+using namespace std;
 
 class X11Config {
 public:
@@ -20,7 +24,7 @@ public:
     GC gc;
     int screen;
     unsigned long black, white;
-    std::vector<Chunk*> chunks;
+    MultiThreadMandelbrotHandler* handler;
 
     X11Config(){
         init();
@@ -36,7 +40,7 @@ public:
         if(event.type==Expose && event.xexpose.count==0) {
             draw();
         }
-        if(event.type==KeyPress && XLookupString(&event.xkey, buffer, 255, &key,0)==1) {
+        if(event.type==KeyPress && XLookupString(&event.xkey, buffer, 255, &key,nullptr)==1) {
             if(key == XK_Escape || buffer[0]=='q') {
                 close();
             }
@@ -44,20 +48,27 @@ public:
         }
     }
 
+    void drawPixel(int x, int y, unsigned long color) const
+    {
+        XSetForeground(display, gc, color);
+        XDrawPoint(display, window, gc, x, y);
+    }
+
 private:
     void init() {
-        display=XOpenDisplay((char *)0);
+        display=XOpenDisplay((char *)nullptr);
         screen= DefaultScreen(display);
         white = WhitePixel(display, screen);
         black = BlackPixel(display,screen);
         window=XCreateSimpleWindow(display, DefaultRootWindow(display), 0, 0, WIDTH, HEIGHT, 5, white, black);
-        XSetStandardProperties(display, window, "Mandelbrot Fractal", "", None, NULL, 0, NULL);
+        XSetStandardProperties(display, window, "Mandelbrot Fractal", "", None, nullptr, 0, nullptr);
         XSelectInput(display, window, ExposureMask | ButtonPressMask | KeyPressMask);
-        gc=XCreateGC(display, window, 0,0);
+        gc=XCreateGC(display, window, 0,nullptr);
         XSetBackground(display,gc,white);
         XClearWindow(display, window);
         XMapRaised(display, window);
 
+        handler = new MultiThreadMandelbrotHandler();
         createChunks();
     }
 
@@ -68,7 +79,7 @@ private:
                 chunk->initial = new Dot(j,i) ;
                 chunk->final = new Dot(j + CHUNK_SIZE - 1, i + CHUNK_SIZE - 1);
 
-                chunks.push_back(chunk);
+                handler->chunks.push_back(chunk);
             }
         }
     }
@@ -78,23 +89,31 @@ private:
         drawMandelbrotByChunks();
     }
 
-    void drawMandelbrotByChunks(){
+    void drawMandelbrotByChunks() {
+        processChunks();
+        drawChunks();
+    }
+
+    void processChunks() {
         auto *mandelbrot = new Mandelbrot(HEIGHT,WIDTH);
 
-        for(Chunk* chunk: chunks){
+        for(Chunk* chunk: handler->chunks){
             for(int i = chunk->initial->x; i <= chunk->final->x; i++){
                 for (int j = chunk->initial->y; j <= chunk->final->y; ++j) {
                     unsigned long pixel_color = mandelbrot->calculate(i, j);
-                    drawPixel(i, j, pixel_color);
+                    chunk->pixels.push_back(new Pixel(i,j,pixel_color));
                 }
             }
+            handler->processedChunks.push_back(chunk);
         }
     }
 
-    void drawPixel(int x, int y, unsigned long color) const
-    {
-        XSetForeground(display, gc, color);
-        XDrawPoint(display, window, gc, x, y);
+    void drawChunks() {
+        for(Chunk* chunk: handler->processedChunks){
+            for(Pixel* pixel: chunk->pixels){
+                drawPixel(pixel->x,pixel->y,pixel->color);
+            }
+        }
     }
 
     void close() const {

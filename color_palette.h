@@ -2,10 +2,11 @@
 #define MANDELBROT_FRACTAL_COLOR_PALETTE_H
 
 #include <vector>
+using namespace std;
 
 class ColorPalette{
 public:
-    std::vector<unsigned long> color_list;
+    vector<unsigned long> color_list;
     explicit ColorPalette(int color_list_length) {
         colors_init(color_list_length);
     }
