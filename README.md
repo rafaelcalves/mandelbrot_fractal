@@ -24,7 +24,7 @@ The simple flow to process the result is:
    > This could be multithreaded, but the current implementation brakes with more than 1 thread on the drawer.
 
 ### Known Issues
-- The chunks limit is already configured, configuring a window bigger than 800x800 or setting chunks smaller than 100 will cause a runtime exception.
+- The chunk quantity limit is already configured, configuring a window bigger than 800x800 or setting chunks smaller than 100 will cause a runtime exception.
 - The `drawer` cannot be multithreaded, probably due to an error on the mutex usage.
 
 ### Build
