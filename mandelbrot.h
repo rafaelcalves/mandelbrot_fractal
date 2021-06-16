@@ -14,7 +14,8 @@ public:
         double c_real = (col - WIDTH / 2) * 4.0 / WIDTH;
         double c_imaginary = (row - HEIGHT / 2) * 4.0 / WIDTH;
         int iterations = getIterations(c_real, c_imaginary);
-        return colors->color_list[iterations];
+        unsigned long color = iterations < colors->color_list.size() ? colors->color_list.at(iterations) : 0;
+        return color;
     }
 
 private:
