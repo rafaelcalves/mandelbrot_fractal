@@ -21,6 +21,7 @@ public:
         toDrawChunks = new ThreadQueue();
         totalChunks = 0;
         drewChunks = 0;
+        processedChunks = 0;
         createChunks();
     }
 

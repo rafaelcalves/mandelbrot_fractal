@@ -13,7 +13,7 @@ class X11Config {
 public:
     Display *display;
     Window window;
-    GC gc;
+    GC graphicContext;
     int screen;
     unsigned long black, white;
 
@@ -44,8 +44,8 @@ public:
 
     void drawPixel(int x, int y, unsigned long color) const
     {
-        XSetForeground(display, gc, color);
-        XDrawPoint(display, window, gc, x, y);
+        XSetForeground(display, graphicContext, color);
+        XDrawPoint(display, window, graphicContext, x, y);
     }
 
 private:
@@ -57,9 +57,9 @@ private:
         window=XCreateSimpleWindow(display, DefaultRootWindow(display), 0, 0, WIDTH, HEIGHT, 5, white, black);
         XSetStandardProperties(display, window, "Mandelbrot Fractal", "", None, nullptr, 0, nullptr);
         XSelectInput(display, window, ExposureMask | ButtonPressMask | KeyPressMask);
-        gc=XCreateGC(display, window, 0, nullptr);
-        XSetBackground(display,gc,white);
-        XClearWindow(display, window);
+        graphicContext=XCreateGC(display, window, 0, nullptr);
+        XSetBackground(display, graphicContext, white);
+        clearWindow();
         XMapRaised(display, window);
     }
 
@@ -68,7 +68,7 @@ private:
     }
 
     void closeDisplay() const {
-        XFreeGC(display, gc);
+        XFreeGC(display, graphicContext);
         XDestroyWindow(display, window);
         XCloseDisplay(display);
     }
