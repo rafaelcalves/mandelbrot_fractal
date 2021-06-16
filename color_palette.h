@@ -2,19 +2,21 @@
 #define MANDELBROT_FRACTAL_COLOR_PALETTE_H
 
 #include <vector>
+#include "constants.h"
+
 using namespace std;
 
 class ColorPalette{
 public:
     vector<unsigned long> color_list;
-    explicit ColorPalette(int color_list_length) {
-        colors_init(color_list_length);
+    explicit ColorPalette() {
+        colors_init(ITERATION_LIMIT);
     }
 
 private:
     std::vector<unsigned long> palette = {
             RGB(66 , 30 , 15 ), // brown 3
-            RGB(25 , 7  , 26 ), // dark violett
+            RGB(25 , 7  , 26 ), // dark violet
             RGB(9  , 1  , 47 ), // darkest blue
             RGB(4  , 4  , 73 ), // blue 5
             RGB(0  , 7  , 100), // blue 4

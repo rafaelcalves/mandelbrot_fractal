@@ -4,6 +4,7 @@
 #include <vector>
 #include "dot.h"
 #include "pixel.h"
+
 using namespace std;
 
 class Chunk {

@@ -1,10 +1,10 @@
-#include "x11_config.h"
+#include "multi_thread_mandelbrot_handler.h"
 
 int main() {
-    auto *x11 = new X11Config();
+    auto* handler = new MultiThreadMandelbrotHandler();
     while (1)
     {
-        x11->handleEvents();
+        handler->handleEvents();
     }
 }
 
