@@ -32,6 +32,7 @@ The simple flow to process the result is:
 ```shell
 $ cmake -B cmake-build-debug
 $ cmake --build cmake-build-debug
+$ ./cmake-build-debug/mandelbrot_fractal 
 ```
 
 ### References
