@@ -1,4 +1,6 @@
 # MULTI THREAD MANDELBROT FRACTAL [by chunks]
+> Team: Rafael Correa Alves, Fabiane Kuhn and Anderson Ludwig. UNISINOS/2021
+
 > This project was develop for learning reasons and has some know issues.
 
 > It is fully writen in english for portfolio reasons.
