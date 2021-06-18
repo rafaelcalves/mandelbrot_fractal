@@ -9,5 +9,8 @@ message(STATUS "X11_INCLUDE_DIR = ${X11_INCLUDE_DIR}")
 message(STATUS "X11_LIBRARIES = ${X11_LIBRARIES}")
 include_directories(${X11_INCLUDE_DIR})
 
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+
 add_executable(mandelbrot_fractal main.cpp)
-target_link_libraries(mandelbrot_fractal ${X11_LIBRARIES})
+target_link_libraries(mandelbrot_fractal ${X11_LIBRARIES} Threads::Threads)
